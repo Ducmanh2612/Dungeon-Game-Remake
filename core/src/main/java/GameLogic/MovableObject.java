@@ -1,7 +1,7 @@
 package GameLogic;
 
 public abstract class MovableObject extends Object {
-    private double velocityX, velocityY;
+    protected double velocityX, velocityY;
 
     public MovableObject(double x, double y, double h, double w, double velocityX, double velocityY) {
         super(x, y, h, w);
@@ -9,19 +9,7 @@ public abstract class MovableObject extends Object {
         this.velocityY = velocityY;
     }
 
-    public void moveHLeft() {
-        this.setX(x - velocityX);
-    }
-
-    public void moveRight() {
-        this.setX(x - velocityY);
-    }
-
-    public void fall() {
-        velocityY += CONST.gravity;
-    }
-
-    public void jump() {
-        velocity -=
-    }
+    public abstract void moveLeft();
+    public abstract void moveRight();
+    public abstract void fall();
 }
