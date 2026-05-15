@@ -22,7 +22,7 @@ public class Sprite {
 
     public void nextFrame() {
         currentFrame = (currentFrame + 1) % numberOfFrame;
-        if (currentFrame == numberOfFrame - 1) terminated = true;
+        if (currentFrame == 1) terminated = true;
         else terminated = false;
     }
 
@@ -32,6 +32,10 @@ public class Sprite {
 
     public double getFrameWidth() {
         return width;
+    }
+
+    public int getNumberOfFrame() {
+        return numberOfFrame;
     }
 
     public void reset() {

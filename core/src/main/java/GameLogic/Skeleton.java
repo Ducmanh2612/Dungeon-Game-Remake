@@ -11,6 +11,7 @@ public class Skeleton extends MovableObject implements Attackable{
     private boolean moveLeft, moveRight;
     private Sprite currentSprite;
     private double HP;
+    private double dmg;
 
     public Skeleton(double x, double y, double h, double w, double velocityX, double velocityY) {
         super(x, y, h, w, velocityX, velocityY);
@@ -32,8 +33,8 @@ public class Skeleton extends MovableObject implements Attackable{
         velocityY = Math.min(10, tmpVelocityY);
     }
 
-    public void attack() {
-
+    public double attack() {
+        return dmg;
     }
 
     public void hurt() {

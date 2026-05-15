@@ -1,5 +1,5 @@
 package GameLogic;
 
 interface Attackable {
-    public void attack();
+    public double attack();
 }
