@@ -8,6 +8,7 @@ public class Skeleton extends MovableObject implements Attackable{
     private boolean hurting, takingDmg;
     private boolean jumping;
     private boolean moveLeft, moveRight;
+    private boolean death, zeroHP;
     private Sprite currentSprite;
     private double HP;
     private double dmg;
@@ -56,23 +57,38 @@ public class Skeleton extends MovableObject implements Attackable{
 
     public double attack() {
         velocityX = 0;
-        counter = (counter + 1) % currentSprite.getNumberOfFrame();
-        if (counter == currentSprite.getNumberOfFrame() - 1) onAttacking = false;
+        if (currentSprite.getCurrentFrame() == currentSprite.getNumberOfFrame() - 2) {
+            w = SKELETON_ATTACK_WIDTH;
+        }
+        if (currentSprite.isTerminated()) {
+            onAttacking = false;
+            w = DEFAULT_SKELETON_WIDTH;
+        }
         return dmg;
     }
 
     public void hurt() {
         velocityX = 0.1 * DEFAULT_TURN_VELOCITY;
-        counter = (counter + 1) % currentSprite.getNumberOfFrame();
-        if (counter == currentSprite.getNumberOfFrame() - 1) hurting = false;
+        if (currentSprite.isTerminated()) hurting = false;
+    }
+
+    public void goDown() {
+        velocityX = 0;
+        velocityY = 0;
+        if (currentSprite.isTerminated()) death = true;
     }
 
     public void takeDamage(double dmg) {
         takingDmg = true;
         HP -= dmg;
+        if (HP <= 0) zeroHP = true;
     }
 
     private void updateLogic(double delta) {
+        if (zeroHP) {
+            goDown();
+            return;
+        }
         idle();
         fall();
         if (takingDmg) {
@@ -98,6 +114,12 @@ public class Skeleton extends MovableObject implements Attackable{
     }
 
     private void updateSprite() {
+        if (zeroHP) {
+            currentSprite = getDeathSprite();
+            resetOtherSprite(currentSprite);
+            currentSprite.nextFrame();
+            return;
+        }
         currentSprite = getIdleSprite();
         if (takingDmg) {
             currentSprite = getHurtSprite();
@@ -142,12 +164,13 @@ public class Skeleton extends MovableObject implements Attackable{
     }
 
     public void setOnAttacking(boolean flag) {
-        if (!hurting && flag) onAttacking = flag;
+        if (!zeroHP && !hurting) onAttacking = flag;
         else onAttacking = false;
     }
 
     public void setHurting(boolean flag) {
-        hurting = flag;
+        if (!zeroHP) hurting = flag;
+        else hurting = false;
     }
 
     public void setMoveLeft(boolean flag) {
@@ -178,5 +201,9 @@ public class Skeleton extends MovableObject implements Attackable{
 
     public Sprite getAttackSprite() {
         return SkeletonAttackSprite.get(index);
+    }
+
+    public Sprite getDeathSprite() {
+        return SkeletonDeathSprite.get(index);
     }
 }

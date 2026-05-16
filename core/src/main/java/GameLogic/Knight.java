@@ -8,6 +8,7 @@ public class Knight extends MovableObject implements Attackable, Jumpable {
     private boolean hurting, takingDmg;
     private boolean jumping;
     private boolean moveLeft, moveRight;
+    private boolean zeroHP, death;
     private Sprite currentSprite;
     private double HP;
     private double dmg;
@@ -56,22 +57,37 @@ public class Knight extends MovableObject implements Attackable, Jumpable {
     public double attack() {
         velocityX = 0;
         counter = (counter + 1) % currentSprite.getNumberOfFrame();
-        if (counter == currentSprite.getNumberOfFrame() - 1) onAttacking = false;
+        if (currentSprite.getCurrentFrame() == currentSprite.getNumberOfFrame() - 2) {
+            w = KNIGHT_ATTACK_WIDTH;
+        }
+        if (currentSprite.isTerminated()) {
+            onAttacking = false;
+            w = DEFAULT_KNIGHT_WIDTH;
+        }
         return dmg;
     }
 
     public void takeDamage(double dmg) {
         takingDmg = true;
         HP -= dmg;
+        if (HP <= 0) zeroHP = true;
     }
 
     public void hurt() {
         velocityX = 0.1 * DEFAULT_TURN_VELOCITY;
-        counter = (counter + 1) % currentSprite.getNumberOfFrame();
-        if (counter == currentSprite.getNumberOfFrame() - 1) hurting = false;
+        if (currentSprite.isTerminated()) hurting = false;
+    }
+
+    public void goDown() {
+        velocityX = 0;
+        velocityY = 0;
+        if (currentSprite.isTerminated()) death = true;
     }
 
     private void updateLogic(double delta) {
+        if (zeroHP) {
+            goDown();
+        }
         idle();
         fall();
         if (takingDmg) {
@@ -97,6 +113,12 @@ public class Knight extends MovableObject implements Attackable, Jumpable {
     }
 
     private void updateSprite() {
+        if (zeroHP) {
+            currentSprite = getDeathSprite();
+            currentSprite.nextFrame();
+            resetOtherSprite(currentSprite);
+            return;
+        }
         currentSprite = getIdleSprite();
         if (takingDmg) {
             currentSprite = getHurtSprite();
@@ -142,7 +164,7 @@ public class Knight extends MovableObject implements Attackable, Jumpable {
     }
 
     public void setOnAttacking(boolean flag) {
-        if (!hurting && flag) onAttacking = flag;
+        if (!hurting && !zeroHP) onAttacking = flag;
         else onAttacking = false;
     }
 
@@ -154,16 +176,16 @@ public class Knight extends MovableObject implements Attackable, Jumpable {
     }
 
     public void setHurting(boolean flag) {
-        hurting = flag;
+        if (!zeroHP) hurting = flag;
     }
 
     public void setMoveLeft(boolean flag) {
-        if (!hurting && !onAttacking) moveLeft = flag;
+        if (!zeroHP && !hurting && !onAttacking) moveLeft = flag;
         else moveLeft = false;
     }
 
     public void setMoveRight(boolean flag) {
-        if (!hurting && !onAttacking) moveRight = flag;
+        if (!zeroHP && !hurting && !onAttacking) moveRight = flag;
         else moveRight = false;
     }
 
@@ -189,5 +211,9 @@ public class Knight extends MovableObject implements Attackable, Jumpable {
 
     public Sprite getHurtSprite() {
         return KnightHurtSprite;
+    }
+
+    public Sprite getDeathSprite() {
+        return KnightDeathSprite;
     }
 }

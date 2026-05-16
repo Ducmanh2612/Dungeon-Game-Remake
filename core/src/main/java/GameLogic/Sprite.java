@@ -22,6 +22,7 @@ public class Sprite {
 
     public Sprite(TextureRegion texture, int numberOfFrame, Rectangle rect) {
         this.texture = new TextureRegion(texture, rect.x, rect.y, rect.width, rect.height);
+        currentFrame = 0;
     }
 
     public boolean isTerminated() {
@@ -31,8 +32,12 @@ public class Sprite {
     public void nextFrame() {
         currentFrame = (currentFrame + 1) % numberOfFrame;
         frame = new TextureRegion(texture, currentFrame * width, currentFrame * height, width, height);
-        if (currentFrame == 1) terminated = true;
+        if (currentFrame == 0) terminated = true;
         else terminated = false;
+    }
+
+    public TextureRegion getFrame() {
+        return frame;
     }
 
     public double getFrameHeight() {
@@ -45,6 +50,10 @@ public class Sprite {
 
     public int getNumberOfFrame() {
         return numberOfFrame;
+    }
+
+    public int getCurrentFrame() {
+        return currentFrame;
     }
 
     public void reset() {

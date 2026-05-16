@@ -99,10 +99,11 @@ public class GameInitAsset {
 
     public static void KnightInit() {
         KnightHurtSprite = new Sprite(HURT, 4);
-        KnightMoveSprite = new Sprite(RUN, 4);
-        KnightAttackSprite = new Sprite(ATTACK_1, 4);
-        KnightIdleSprite = new Sprite(IDLE, 4);
-        KnightJumpSprite = new Sprite(JUMP, 4);
+        KnightMoveSprite = new Sprite(RUN, 8);
+        KnightAttackSprite = new Sprite(ATTACK_3, 6);
+        KnightDeathSprite = new Sprite(DEATH, 12);
+        KnightIdleSprite = new Sprite(IDLE, 7);
+        KnightJumpSprite = new Sprite(JUMP, 5);
     }
 
     public static void SkeletonsInit(int numbers) {
@@ -110,11 +111,13 @@ public class GameInitAsset {
         SkeletonHurtSprite = new ArrayList<>();
         SkeletonIdleSprite = new ArrayList<>();
         SkeletonMoveSprite = new ArrayList<>();
+        SkeletonDeathSprite = new ArrayList<>();
         for (int i = 0; i < numbers; i++) {
-            SkeletonAttackSprite.add(new Sprite(Skeleton_enemy, 4, new Rectangle(5, 5, 5, 5)));
-            SkeletonMoveSprite.add(new Sprite(Skeleton_enemy, 4, new Rectangle(5, 5, 5, 5)));
-            SkeletonIdleSprite.add(new Sprite(Skeleton_enemy, 4,  new Rectangle(5, 5, 5, 5)));
-            SkeletonMoveSprite.add(new Sprite(Skeleton_enemy, 4,  new Rectangle(5, 5, 5, 5)));
+            SkeletonAttackSprite.add(new Sprite(Skeleton_enemy, 13, new Rectangle(0, 0, 832, 32)));
+            SkeletonDeathSprite.add(new Sprite(Skeleton_enemy, 13, new Rectangle(0, 32, 832, 32)));
+            SkeletonMoveSprite.add(new Sprite(Skeleton_enemy, 13, new Rectangle(0, 64, 832, 32)));
+            SkeletonIdleSprite.add(new Sprite(Skeleton_enemy, 4,  new Rectangle(0, 96, 128, 32)));
+            SkeletonHurtSprite.add(new Sprite(Skeleton_enemy, 4,  new Rectangle(0, 128, 96, 32)));
         }
     }
 
