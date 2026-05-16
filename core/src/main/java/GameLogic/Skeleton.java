@@ -3,28 +3,32 @@ package GameLogic;
 import static GameLogic.CONST.*;
 
 public class Skeleton extends MovableObject implements Attackable{
-    private static int counter;
-    private static int index;
     private boolean isOnGround;
     private boolean onAttacking;
-    private boolean hurting;
+    private boolean hurting, takingDmg;
+    private boolean jumping;
     private boolean moveLeft, moveRight;
     private Sprite currentSprite;
     private double HP;
     private double dmg;
+    private int counter = -1;
+    private static int currentSkeleton;
+    private int index;
 
     public Skeleton(double x, double y, double h, double w, double velocityX, double velocityY) {
         super(x, y, h, w, velocityX, velocityY);
-        index = counter;
-        counter++;
+    }
+
+    public void idle() {
+        velocityX = 0;
     }
 
     public void moveLeft() {
-        x -= velocityX;
+        velocityX = -Math.abs(DEFAULT_TURN_VELOCITY);
     }
 
     public void moveRight() {
-        x += velocityX;
+        velocityX = Math.abs(DEFAULT_TURN_VELOCITY);
     }
 
     public void fall() {
@@ -33,50 +37,105 @@ public class Skeleton extends MovableObject implements Attackable{
         velocityY = Math.min(10, tmpVelocityY);
     }
 
-    public double attack() {
-        return dmg;
-    }
-
-    public void hurt() {
-        HP -= 5;
-    }
-
     public void jump() {
         if (!isOnGround) return;
         isOnGround = false;
         velocityY = DEFAULT_JUMP_VELOCITY;
+        jumping = false;
     }
 
-    public void updateState() {
+    public void land() {
+        isOnGround = true;
+        velocityY = 0;
+    }
+
+    public void move(double delta) {
+        x += velocityX * delta;
+        y += velocityY * delta;
+    }
+
+    public double attack() {
+        velocityX = 0;
+        counter = (counter + 1) % currentSprite.getNumberOfFrame();
+        if (counter == currentSprite.getNumberOfFrame() - 1) onAttacking = false;
+        return dmg;
+    }
+
+    public void takeDamage() {
+        HP -= 5;
+    }
+
+    public void hurt() {
+        velocityX = 0.1 * DEFAULT_TURN_VELOCITY;
+        counter = (counter + 1) % currentSprite.getNumberOfFrame();
+        if (counter == currentSprite.getNumberOfFrame() - 1) hurting = false;
+    }
+
+    private void updateLogic(double delta) {
+        idle();
         fall();
+        if (takingDmg) {
+            takeDamage();
+            takingDmg = false;
+        }
         if (hurting) {
             hurt();
-            currentSprite = SkeletonHurtSprite.get(index);
-            resetOtherSprite(currentSprite);
+            move(delta);
             return;
         }
         if (onAttacking) {
             attack();
-            currentSprite = SkeletonAttackSprite.get(index);
-            currentSprite.nextFrame();
-            resetOtherSprite(currentSprite);
-            if (currentSprite.isTerminated()) onAttacking = false;
+            move(delta);
             return;
         }
-        if (moveLeft || moveRight) {
-            if (moveLeft && moveRight) ;
-            else if (moveLeft) moveLeft();
-            else if (moveRight) moveRight();
-            currentSprite = SkeletonMoveSprite.get(index);
+        if (jumping) {
+            jump();
+        }
+        if (moveLeft && moveRight);
+        else if (moveLeft) moveLeft();
+        else if (moveRight) moveRight();
+        move(delta);
+    }
+
+    private void updateSprite() {
+        currentSprite = KnightIdleSprite;
+        if (takingDmg) {
+            currentSprite = KnightHurtSprite;
+            currentSprite.reset();
+        }
+        if (hurting) {
+            currentSprite = KnightHurtSprite;
+            resetOtherSprite(currentSprite);
+            currentSprite.nextFrame();
+            return;
+        }
+        if (onAttacking) {
+            currentSprite = KnightAttackSprite;
+            resetOtherSprite(currentSprite);
+            currentSprite.nextFrame();
+            return;
+        }
+        if (!isOnGround) {
+            currentSprite = KnightJumpSprite;
             resetOtherSprite(currentSprite);
         }
+        if (moveLeft && moveRight);
+        else if (moveLeft) currentSprite = KnightMoveSprite;
+        else if (moveRight) currentSprite = KnightMoveSprite;
+        resetOtherSprite(currentSprite);
         currentSprite.nextFrame();
     }
 
+    public void updateState(double delta) {
+        updateSprite();
+        updateLogic(delta);
+    }
+
     public void resetOtherSprite(Sprite sprite) {
-        if (SkeletonMoveSprite.get(index)!= sprite) SkeletonMoveSprite.get(index).reset();
-        if (SkeletonHurtSprite.get(index) != sprite) SkeletonHurtSprite.get(index).reset();
-        if (SkeletonAttackSprite.get(index) != sprite) SkeletonAttackSprite.get(index).reset();
+        if (SkeletonMoveSprite.get(index) != sprite) SkeletonMoveSprite.get(index).reset();
+        if (SkeletonHurtSprite.get(index) != sprite) SkeletonHurtSprite.reset();
+        if (SkeletonAttackSprite.get(index) != sprite) KnightAttackSprite.reset();
+        if (SkeletonIdleSprite.get(index) != sprite) KnightIdleSprite.reset();
     }
 
     public void setOnGround(boolean flag) {
@@ -84,11 +143,22 @@ public class Skeleton extends MovableObject implements Attackable{
     }
 
     public void setOnAttacking(boolean flag) {
-        onAttacking = flag;
+        if (!hurting && flag) onAttacking = flag;
+        else onAttacking = false;
     }
 
     public void setHurting(boolean flag) {
         hurting = flag;
+    }
+
+    public void setMoveLeft(boolean flag) {
+        if (!hurting && !onAttacking) moveLeft = flag;
+        else moveLeft = false;
+    }
+
+    public void setMoveRight(boolean flag) {
+        if (!hurting && !onAttacking) moveRight = flag;
+        else moveRight = false;
     }
 
     public void setCurrentSprite(Sprite sprite) {
