@@ -61,21 +61,21 @@ public class Skeleton extends MovableObject implements Attackable{
         return dmg;
     }
 
-    public void takeDamage() {
-        HP -= 5;
-    }
-
     public void hurt() {
         velocityX = 0.1 * DEFAULT_TURN_VELOCITY;
         counter = (counter + 1) % currentSprite.getNumberOfFrame();
         if (counter == currentSprite.getNumberOfFrame() - 1) hurting = false;
     }
 
+    public void takeDamage(double dmg) {
+        takingDmg = true;
+        HP -= dmg;
+    }
+
     private void updateLogic(double delta) {
         idle();
         fall();
         if (takingDmg) {
-            takeDamage();
             takingDmg = false;
         }
         if (hurting) {
@@ -91,37 +91,36 @@ public class Skeleton extends MovableObject implements Attackable{
         if (jumping) {
             jump();
         }
-        if (moveLeft && moveRight);
+        if (moveLeft && moveRight) ;
         else if (moveLeft) moveLeft();
         else if (moveRight) moveRight();
         move(delta);
     }
 
     private void updateSprite() {
-        currentSprite = KnightIdleSprite;
+        currentSprite = getIdleSprite();
         if (takingDmg) {
-            currentSprite = KnightHurtSprite;
+            currentSprite = getHurtSprite();
             currentSprite.reset();
         }
         if (hurting) {
-            currentSprite = KnightHurtSprite;
+            currentSprite = getHurtSprite();
             resetOtherSprite(currentSprite);
             currentSprite.nextFrame();
             return;
         }
         if (onAttacking) {
-            currentSprite = KnightAttackSprite;
+            currentSprite = getAttackSprite();
             resetOtherSprite(currentSprite);
             currentSprite.nextFrame();
             return;
         }
         if (!isOnGround) {
-            currentSprite = KnightJumpSprite;
-            resetOtherSprite(currentSprite);
+            currentSprite = getIdleSprite();
         }
         if (moveLeft && moveRight);
-        else if (moveLeft) currentSprite = KnightMoveSprite;
-        else if (moveRight) currentSprite = KnightMoveSprite;
+        else if (moveLeft) currentSprite = getMoveSprite();
+        else if (moveRight) currentSprite = getMoveSprite();
         resetOtherSprite(currentSprite);
         currentSprite.nextFrame();
     }
@@ -132,10 +131,10 @@ public class Skeleton extends MovableObject implements Attackable{
     }
 
     public void resetOtherSprite(Sprite sprite) {
-        if (SkeletonMoveSprite.get(index) != sprite) SkeletonMoveSprite.get(index).reset();
-        if (SkeletonHurtSprite.get(index) != sprite) SkeletonHurtSprite.reset();
-        if (SkeletonAttackSprite.get(index) != sprite) KnightAttackSprite.reset();
-        if (SkeletonIdleSprite.get(index) != sprite) KnightIdleSprite.reset();
+        if (getMoveSprite() != sprite) getMoveSprite().reset();
+        if (getHurtSprite() != sprite) getHurtSprite().reset();
+        if (getAttackSprite() != sprite) getAttackSprite().reset();
+        if (getIdleSprite() != sprite) getIdleSprite().reset();
     }
 
     public void setOnGround(boolean flag) {
@@ -163,5 +162,21 @@ public class Skeleton extends MovableObject implements Attackable{
 
     public void setCurrentSprite(Sprite sprite) {
         currentSprite = sprite;
+    }
+
+    public Sprite getMoveSprite() {
+        return SkeletonMoveSprite.get(index);
+    }
+
+    public Sprite getIdleSprite() {
+        return SkeletonIdleSprite.get(index);
+    }
+
+    public Sprite getHurtSprite() {
+        return SkeletonHurtSprite.get(index);
+    }
+
+    public Sprite getAttackSprite() {
+        return SkeletonAttackSprite.get(index);
     }
 }

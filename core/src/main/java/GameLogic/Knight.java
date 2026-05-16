@@ -12,6 +12,7 @@ public class Knight extends MovableObject implements Attackable, Jumpable {
     private double HP;
     private double dmg;
     private int counter = -1;
+    private Attack currentAttack;
 
     public Knight(double x, double y, double h, double w, double velocityX, double velocityY) {
         super(x, y, h, w, velocityX, velocityY);
@@ -59,8 +60,9 @@ public class Knight extends MovableObject implements Attackable, Jumpable {
         return dmg;
     }
 
-    public void takeDamage() {
-        HP -= 5;
+    public void takeDamage(double dmg) {
+        takingDmg = true;
+        HP -= dmg;
     }
 
     public void hurt() {
@@ -73,7 +75,6 @@ public class Knight extends MovableObject implements Attackable, Jumpable {
         idle();
         fall();
         if (takingDmg) {
-            takeDamage();
             takingDmg = false;
         }
         if (hurting) {
@@ -96,30 +97,29 @@ public class Knight extends MovableObject implements Attackable, Jumpable {
     }
 
     private void updateSprite() {
-        currentSprite = KnightIdleSprite;
+        currentSprite = getIdleSprite();
         if (takingDmg) {
-            currentSprite = KnightHurtSprite;
+            currentSprite = getHurtSprite();
             currentSprite.reset();
         }
         if (hurting) {
-            currentSprite = KnightHurtSprite;
+            currentSprite = getHurtSprite();
             resetOtherSprite(currentSprite);
             currentSprite.nextFrame();
             return;
         }
         if (onAttacking) {
-            currentSprite = KnightAttackSprite;
+            currentSprite = getAttackSprite();
             resetOtherSprite(currentSprite);
             currentSprite.nextFrame();
             return;
         }
         if (!isOnGround) {
-            currentSprite = KnightJumpSprite;
-            resetOtherSprite(currentSprite);
+            currentSprite = getJumpSprite();
         }
         if (moveLeft && moveRight);
-        else if (moveLeft) currentSprite = KnightMoveSprite;
-        else if (moveRight) currentSprite = KnightMoveSprite;
+        else if (moveLeft) currentSprite = getMoveSprite();
+        else if (moveRight) currentSprite = getMoveSprite();
         resetOtherSprite(currentSprite);
         currentSprite.nextFrame();
     }
@@ -130,11 +130,11 @@ public class Knight extends MovableObject implements Attackable, Jumpable {
     }
 
     public void resetOtherSprite(Sprite sprite) {
-        if (KnightMoveSprite != sprite) KnightMoveSprite.reset();
-        if (KnightHurtSprite != sprite) KnightHurtSprite.reset();
-        if (KnightAttackSprite != sprite) KnightAttackSprite.reset();
-        if (KnightJumpSprite != sprite) KnightJumpSprite.reset();
-        if (KnightIdleSprite != sprite) KnightIdleSprite.reset();
+        if (getMoveSprite() != sprite) getMoveSprite().reset();
+        if (getHurtSprite() != sprite) getHurtSprite().reset();
+        if (getAttackSprite() != sprite) getAttackSprite().reset();
+        if (getJumpSprite() != sprite) getJumpSprite().reset();
+        if (getIdleSprite() != sprite) getIdleSprite().reset();
     }
 
     public void setOnGround(boolean flag) {
@@ -169,5 +169,25 @@ public class Knight extends MovableObject implements Attackable, Jumpable {
 
     public void setCurrentSprite(Sprite sprite) {
         currentSprite = sprite;
+    }
+
+    public Sprite getMoveSprite() {
+        return KnightMoveSprite;
+    }
+
+    public Sprite getAttackSprite() {
+        return KnightAttackSprite;
+    }
+
+    public Sprite getIdleSprite() {
+        return KnightIdleSprite;
+    }
+
+    public Sprite getJumpSprite() {
+        return KnightJumpSprite;
+    }
+
+    public Sprite getHurtSprite() {
+        return KnightHurtSprite;
     }
 }

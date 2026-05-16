@@ -14,4 +14,6 @@ public class CONST {
     public static List<Sprite> SkeletonAttackSprite;
     public static List<Sprite> SkeletonMoveSprite;
     public static List<Sprite> SkeletonHurtSprite;
+    public static List<Sprite> SkeletonIdleSprite;
+    public static Sprite BlockSprite;
 }
